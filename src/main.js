@@ -85,7 +85,7 @@ async function handleLoadBtn() {
   page++;
   loadMoreBtn.disabled = true;
   showLoader();
-
+  hideLoadMoreButton();
   try {
     const response = await getImagesByQuery(query, page);
     const data = response.data.hits;
