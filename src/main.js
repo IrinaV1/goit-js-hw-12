@@ -22,18 +22,20 @@ loadMoreBtn.addEventListener('click', handleLoadBtn);
 
 async function handleFormClick(event) {
   event.preventDefault();
+
   clearGallery();
   hideLoadMoreButton();
 
   query = event.target.elements['search-text'].value.trim();
   if (!query) return;
 
+  page = 1;
   showLoader();
 
   try {
-    const response = await getImagesByQuery(query, (page = 1));
+    const response = await getImagesByQuery(query, page);
     const data = response.data.hits;
-
+    const totalHits = response.data.totalHits;
     if (!data.length) {
       iziToast.show({
         titleColor: 'white',
@@ -47,8 +49,22 @@ async function handleFormClick(event) {
       return;
     }
     createGallery(data);
-    if (response.data.totalHits > data.length) {
+
+    const totalPages = Math.ceil(totalHits / 15);
+    if (page < totalPages) {
       showLoadMoreButton();
+    } else {
+      hideLoadMoreButton();
+
+      iziToast.show({
+        titleColor: 'white',
+        position: 'topRight',
+        title: 'Error',
+        backgroundColor: 'red',
+        messageColor: 'white',
+        message:
+          'Sorry, there are no images matching your search query. Please try again!',
+      });
     }
   } catch (error) {
     iziToast.show({
@@ -60,8 +76,8 @@ async function handleFormClick(event) {
       message: 'Something went wrong. Please try again later.',
     });
   } finally {
-    event.target.reset();
     hideLoader();
+    event.target.reset();
   }
 }
 
@@ -73,6 +89,7 @@ async function handleLoadBtn() {
   try {
     const response = await getImagesByQuery(query, page);
     const data = response.data.hits;
+    const totalHits = response.data.totalHits;
     createGallery(data);
 
     const card = document.querySelector('.gallery-item');
@@ -82,14 +99,16 @@ async function handleLoadBtn() {
       behavior: 'smooth',
     });
 
-    const totalLoaded = page * 15;
-    if (totalLoaded >= response.data.totalHits) {
+    const totalPages = Math.ceil(totalHits / 15);
+    if (page >= totalPages) {
       hideLoadMoreButton();
 
       iziToast.show({
         message: "We're sorry, but you've reached the end of search results.",
         position: 'topRight',
       });
+    } else {
+      showLoadMoreButton();
     }
   } catch (error) {
     iziToast.show({
