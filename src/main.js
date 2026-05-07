@@ -34,8 +34,8 @@ async function handleFormClick(event) {
 
   try {
     const response = await getImagesByQuery(query, page);
-    const data = response.data.hits;
-    const totalHits = response.data.totalHits;
+    const data = response.hits;
+    const totalHits = response.totalHits;
     if (!data.length) {
       iziToast.show({
         titleColor: 'white',
@@ -43,8 +43,7 @@ async function handleFormClick(event) {
         title: 'Error',
         backgroundColor: 'red',
         messageColor: 'white',
-        message:
-          'Sorry, there are no images matching your search query. Please try again!',
+        message: 'No images found for this query. Please try again.',
       });
       return;
     }
@@ -88,8 +87,8 @@ async function handleLoadBtn() {
   hideLoadMoreButton();
   try {
     const response = await getImagesByQuery(query, page);
-    const data = response.data.hits;
-    const totalHits = response.data.totalHits;
+    const data = response.hits;
+    const totalHits = response.totalHits;
     createGallery(data);
 
     const card = document.querySelector('.gallery-item');
@@ -104,7 +103,8 @@ async function handleLoadBtn() {
       hideLoadMoreButton();
 
       iziToast.show({
-        message: "We're sorry, but you've reached the end of search results.",
+        message:
+          'Sorry, there are no images matching your search query. Please try again!',
         position: 'topRight',
       });
     } else {
